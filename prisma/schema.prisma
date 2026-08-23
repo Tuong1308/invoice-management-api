@@ -7,12 +7,60 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum InvoiceStatus {
+  DRAFT
+  ISSUED
+  CANCELED
+  REPLACED
+}
+
 model Invoice {
-  id        Int      @id @default(autoincrement())
-  number    String   @unique
-  customer  String
-  amount    Float
-  status    String   @default("draft")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                Int           @id @default(autoincrement())
+  invoiceNumber     String        @unique
+  status            InvoiceStatus @default(DRAFT)
+
+  // Thong tin khach hang
+  customerName      String
+  customerAddress   String?
+  customerEmail     String?
+
+  // Tong tien
+  totalAmount       Float         @default(0)
+
+  // Ghi chu
+  note              String?
+
+  // Huy hoa don
+  cancelReason      String?
+  canceledAt        DateTime?
+
+  // Thay the hoa don (lien ket 2 chieu)
+  replacedInvoiceId Int?          @unique
+  replacedInvoice   Invoice?      @relation("InvoiceReplacement", fields: [replacedInvoiceId], references: [id])
+  replacedByInvoice Invoice?      @relation("InvoiceReplacement")
+
+  // Ngay xuat hoa don
+  issuedAt          DateTime?
+
+  // Timestamps
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Line items
+  items             InvoiceItem[]
+
+  @@map("invoices")
+}
+
+model InvoiceItem {
+  id          Int     @id @default(autoincrement())
+  invoiceId   Int
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  description String
+  quantity    Int     @default(1)
+  unitPrice   Float
+  amount      Float   // quantity * unitPrice
+
+  @@map("invoice_items")
 }
