@@ -1,9 +1,21 @@
-import express from "express";
-import invoiceRouter from "./routes/invoice.routes";
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
+import invoiceRoutes from './routes/invoice-routes';
+
+dotenv.config();
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
-app.use("/api/invoices", invoiceRouter);
+
+// Routes
+app.use('/api/invoices', invoiceRoutes);
+
+// Health check
+app.get('/health', (_req, res) => {
+  res.json({ status: 'ok' });
+});
 
 export default app;

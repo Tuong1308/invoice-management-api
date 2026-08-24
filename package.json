@@ -10,10 +10,12 @@
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "cors": "^2.8.6",
     "dotenv": "latest",
     "express": "latest"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "@types/express": "latest",
     "@types/jest": "latest",
     "@types/node": "latest",
