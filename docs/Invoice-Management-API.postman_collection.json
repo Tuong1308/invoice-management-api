@@ -1,0 +1,297 @@
+{
+  "info": {
+    "name": "Invoice Management API",
+    "description": "API collection for Invoice Management - CRUD, state machine (issue/cancel/replace), PDF export",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api"
+    },
+    {
+      "key": "invoiceId",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "CRUD",
+      "item": [
+        {
+          "name": "Create Draft Invoice",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Cong ty TNHH ABC\",\n  \"customerAddress\": \"123 Nguyen Hue, Quan 1, TP.HCM\",\n  \"customerEmail\": \"ketoan@abc.com.vn\",\n  \"note\": \"Thanh toan trong vong 30 ngay\",\n  \"items\": [\n    {\n      \"description\": \"Thiet ke website\",\n      \"quantity\": 1,\n      \"unitPrice\": 5000000\n    },\n    {\n      \"description\": \"Hosting 1 nam\",\n      \"quantity\": 1,\n      \"unitPrice\": 1200000\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoices",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices"]
+            }
+          }
+        },
+        {
+          "name": "Get All Invoices",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/invoices",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices"]
+            }
+          }
+        },
+        {
+          "name": "Get All Invoices (Filter by Status)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/invoices?status=DRAFT",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "DRAFT"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Invoice by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/invoices/{{invoiceId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices", "{{invoiceId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Draft Invoice",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Cong ty XYZ\",\n  \"items\": [\n    {\n      \"description\": \"Dich vu tu van\",\n      \"quantity\": 3,\n      \"unitPrice\": 2000000\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoices/{{invoiceId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices", "{{invoiceId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete Draft Invoice",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/invoices/{{invoiceId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices", "{{invoiceId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Business Logic",
+      "item": [
+        {
+          "name": "Issue Invoice (DRAFT → ISSUED)",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{baseUrl}}/invoices/{{invoiceId}}/issue",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices", "{{invoiceId}}", "issue"]
+            }
+          }
+        },
+        {
+          "name": "Cancel Invoice (ISSUED → CANCELED)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cancelReason\": \"Wrong amount\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoices/{{invoiceId}}/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices", "{{invoiceId}}", "cancel"]
+            }
+          }
+        },
+        {
+          "name": "Replace Invoice (ISSUED → REPLACED + new DRAFT)",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/invoices/{{invoiceId}}/replace",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices", "{{invoiceId}}", "replace"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "PDF",
+      "item": [
+        {
+          "name": "Download Invoice PDF",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/invoices/{{invoiceId}}/pdf",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices", "{{invoiceId}}", "pdf"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Validation Tests",
+      "item": [
+        {
+          "name": "Create Invoice - Missing Fields (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Test\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoices",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices"]
+            }
+          }
+        },
+        {
+          "name": "Get Invoice - Not Found (404)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/invoices/99999",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices", "99999"]
+            }
+          }
+        },
+        {
+          "name": "Update ISSUED Invoice (400)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerName\": \"Should Fail\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoices/{{invoiceId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices", "{{invoiceId}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete ISSUED Invoice (400)",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/invoices/{{invoiceId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices", "{{invoiceId}}"]
+            }
+          }
+        },
+        {
+          "name": "Cancel Without Reason (400)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cancelReason\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/invoices/{{invoiceId}}/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices", "{{invoiceId}}", "cancel"]
+            }
+          }
+        },
+        {
+          "name": "Issue Already ISSUED Invoice (400)",
+          "request": {
+            "method": "PATCH",
+            "url": {
+              "raw": "{{baseUrl}}/invoices/{{invoiceId}}/issue",
+              "host": ["{{baseUrl}}"],
+              "path": ["invoices", "{{invoiceId}}", "issue"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:3000/health",
+              "host": ["http://localhost:3000"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
