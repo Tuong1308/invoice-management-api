@@ -15,4 +15,7 @@ router.patch('/:id/issue', invoiceController.issue);
 router.patch('/:id/cancel', invoiceController.cancel);
 router.post('/:id/replace', invoiceController.replace);
 
+// PDF export
+router.get('/:id/pdf', invoiceController.downloadPDF);
+
 export default router;

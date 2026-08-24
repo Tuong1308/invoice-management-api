@@ -12,13 +12,15 @@
     "@prisma/client": "^5.22.0",
     "cors": "^2.8.6",
     "dotenv": "latest",
-    "express": "latest"
+    "express": "latest",
+    "pdfkit": "^0.20.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "latest",
     "@types/jest": "latest",
     "@types/node": "latest",
+    "@types/pdfkit": "^0.17.6",
     "jest": "latest",
     "prisma": "^5.22.0",
     "ts-jest": "latest",

@@ -94,7 +94,7 @@ export const invoiceService = {
       throw new Error('Only DRAFT invoices can be updated');
     }
 
-    // If new items provided, delete old items and create new ones
+    // If new items provided, delete old and create new
     const updateData: any = {
       customerName: data.customerName,
       customerAddress: data.customerAddress,
