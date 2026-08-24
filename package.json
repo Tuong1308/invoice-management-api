@@ -18,12 +18,13 @@
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "latest",
-    "@types/jest": "latest",
+    "@types/jest": "^30.0.0",
     "@types/node": "latest",
     "@types/pdfkit": "^0.17.6",
     "jest": "latest",
     "prisma": "^5.22.0",
-    "ts-jest": "latest",
+    "ts-jest": "^29.4.12",
+    "ts-node": "^10.9.2",
     "tsx": "latest",
     "typescript": "latest"
   }
