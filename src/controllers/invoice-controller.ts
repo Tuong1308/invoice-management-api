@@ -3,7 +3,7 @@ import { invoiceService } from '../services/invoice-service';
 import { InvoiceStatus } from '@prisma/client';
 
 export const invoiceController = {
-  // POST /api/invoices
+  // POST /api/invoices — Create draft invoice
   async create(req: Request, res: Response) {
     try {
       const { customerName, customerAddress, customerEmail, note, items } = req.body;
@@ -26,7 +26,7 @@ export const invoiceController = {
     }
   },
 
-  // GET /api/invoices
+  // GET /api/invoices — Get all invoices
   async findAll(req: Request, res: Response) {
     try {
       const status = typeof req.query.status === 'string' ? req.query.status as InvoiceStatus : undefined;
@@ -37,7 +37,7 @@ export const invoiceController = {
     }
   },
 
-  // GET /api/invoices/:id
+  // GET /api/invoices/:id — Get invoice by ID
   async findById(req: Request, res: Response) {
     try {
       const id = parseInt(req.params.id as string);
@@ -57,7 +57,7 @@ export const invoiceController = {
     }
   },
 
-  // PUT /api/invoices/:id
+  // PUT /api/invoices/:id — Update draft invoice
   async update(req: Request, res: Response) {
     try {
       const id = parseInt(req.params.id as string);
@@ -78,10 +78,10 @@ export const invoiceController = {
     }
   },
 
-  // DELETE /api/invoices/:id
+  // DELETE /api/invoices/:id — Delete draft invoice
   async delete(req: Request, res: Response) {
     try {
-      const id = parseInt( req.params.id as string);
+      const id = parseInt(req.params.id as string);
       if (isNaN(id)) {
         return res.status(400).json({ error: 'Invalid invoice ID' });
       }
@@ -93,6 +93,70 @@ export const invoiceController = {
         return res.status(404).json({ error: error.message });
       }
       if (error.message === 'Only DRAFT invoices can be deleted') {
+        return res.status(400).json({ error: error.message });
+      }
+      return res.status(500).json({ error: error.message });
+    }
+  },
+
+  // PATCH /api/invoices/:id/issue — Issue invoice (DRAFT -> ISSUED)
+  async issue(req: Request, res: Response) {
+    try {
+      const id = parseInt(req.params.id as string);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: 'Invalid invoice ID' });
+      }
+
+      const invoice = await invoiceService.issue(id);
+      return res.json(invoice);
+    } catch (error: any) {
+      if (error.message === 'Invoice not found') {
+        return res.status(404).json({ error: error.message });
+      }
+      if (error.message.includes('Only DRAFT') || error.message.includes('must have')) {
+        return res.status(400).json({ error: error.message });
+      }
+      return res.status(500).json({ error: error.message });
+    }
+  },
+
+  // PATCH /api/invoices/:id/cancel — Cancel invoice (ISSUED -> CANCELED)
+  async cancel(req: Request, res: Response) {
+    try {
+      const id = parseInt(req.params.id as string);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: 'Invalid invoice ID' });
+      }
+
+      const { cancelReason } = req.body;
+      const invoice = await invoiceService.cancel(id, cancelReason);
+      return res.json(invoice);
+    } catch (error: any) {
+      if (error.message === 'Invoice not found') {
+        return res.status(404).json({ error: error.message });
+      }
+      if (error.message.includes('Only ISSUED') || error.message.includes('reason')) {
+        return res.status(400).json({ error: error.message });
+      }
+      return res.status(500).json({ error: error.message });
+    }
+  },
+
+  // POST /api/invoices/:id/replace — Replace invoice (ISSUED -> REPLACED + new DRAFT)
+  async replace(req: Request, res: Response) {
+    try {
+      const id = parseInt(req.params.id as string);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: 'Invalid invoice ID' });
+      }
+
+      const newInvoice = await invoiceService.replace(id);
+      return res.status(201).json(newInvoice);
+    } catch (error: any) {
+      if (error.message === 'Invoice not found') {
+        return res.status(404).json({ error: error.message });
+      }
+      if (error.message.includes('Only ISSUED')) {
         return res.status(400).json({ error: error.message });
       }
       return res.status(500).json({ error: error.message });
